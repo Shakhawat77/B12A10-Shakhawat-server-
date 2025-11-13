@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
-
+require('dotenv').config();
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -9,7 +9,7 @@ app.use(cors());
 app.use(express.json());
 
 const uri =
-  "mongodb+srv://shakhawat:ViDw279qU50wqkdE@cluster0.3lozw5z.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+  `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASS}@cluster0.3lozw5z.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
 const client = new MongoClient(uri, {
   serverApi: {
@@ -33,7 +33,7 @@ async function run() {
     app.get("/", (req, res) => res.send("🚀 Freelance server running"));
 
     // Add new job
-    app.post("/job", async (req, res) => {
+    app.post("/addJob", async (req, res) => {
       try {
         const job = { ...req.body, createdAt: new Date() };
         const result = await jobsCollection.insertOne(job);
@@ -44,7 +44,7 @@ async function run() {
     });
 
     // Get all jobs
-    app.get("/job", async (req, res) => {
+    app.get("/allJobs", async (req, res) => {
       try {
         const limit = parseInt(req.query.limit) || 0;
         const sortOrder = req.query.sort === "asc" ? 1 : -1;
@@ -60,7 +60,7 @@ async function run() {
     });
 
     // Get single job
-    app.get("/job/:id", async (req, res) => {
+    app.get("/allJobs/:id", async (req, res) => {
       try {
         const job = await jobsCollection.findOne({ _id: new ObjectId(req.params.id) });
         if (!job) return res.status(404).json({ message: "Job not found" });
@@ -71,7 +71,7 @@ async function run() {
     });
 
     // Update job
-    app.put("/job/:id", async (req, res) => {
+    app.put("/updateJob/:id", async (req, res) => {
       try {
         const { title, category, summary, coverImage } = req.body;
         const updatedJob = {
@@ -91,7 +91,7 @@ async function run() {
     });
 
     // Delete job
-    app.delete("/job/:id", async (req, res) => {
+    app.delete("/deleteJob/:id", async (req, res) => {
       try {
         const result = await jobsCollection.deleteOne({ _id: new ObjectId(req.params.id) });
         if (result.deletedCount === 0)
@@ -103,7 +103,7 @@ async function run() {
     });
 
     // Accept job
-    app.post("/accepted", async (req, res) => {
+    app.post("/myAccepted-task", async (req, res) => {
       try {
         const acceptedJob = { ...req.body, acceptedAt: new Date() };
         const result = await acceptedJobsCollection.insertOne(acceptedJob);
